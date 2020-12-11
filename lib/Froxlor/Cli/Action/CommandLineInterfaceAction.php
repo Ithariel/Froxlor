@@ -43,8 +43,27 @@ class CommandLineInterfaceAction extends \Froxlor\Cli\Action
         $this->userinfo['adminsession'] = 1;
         $this->userinfo['userid'] = 1;
 
-        if (array_key_exists("list-domains", $this->_args)) {
-            $this->listdomains();
+        if (array_key_exists("list-admins", $this->_args)) {
+            $this->listAdmins();
+        } elseif (array_key_exists("list-customers", $this->_args)) {
+            $this->listCustomers();
+        } elseif (array_key_exists("list-domains", $this->_args)) {
+            $this->listDomains();
+        } elseif (array_key_exists("get-admin", $this->_args)) {
+            if ($this->_args['get-admin'] === true) {
+                CommandLineInterfaceCmd::printerr("Option --get-admin requires id or loginname");
+            }
+            $this->getAdmin($this->_args['get-admin']);
+        } elseif (array_key_exists("get-customer", $this->_args)) {
+            if ($this->_args['get-customer'] === true) {
+                CommandLineInterfaceCmd::printerr("Option --get-customer requires id or loginname");
+            }
+            $this->getCustomer($this->_args['get-customer']);
+        } elseif (array_key_exists("get-domain", $this->_args)) {
+            if ($this->_args['get-domain'] === true) {
+                CommandLineInterfaceCmd::printerr("Option --get-domain requires id domainname");
+            }
+            $this->getDomain($this->_args['get-domain']);
         }
 
         /*
@@ -58,12 +77,75 @@ class CommandLineInterfaceAction extends \Froxlor\Cli\Action
         */
     }
 
+    private function listAdmins()
+    {
+        $result = \Froxlor\Api\Commands\Admins::getLocal($this->userinfo)->listing();
+        $list = json_decode($result, true)['data']['list'];
+        foreach ($list as $domain) {
+            CommandLineInterfaceCmd::println("${domain['id']}: ${domain['domain_ace']}");
+        }
+    }
+
+    private function listCustomers()
+    {
+        $result = \Froxlor\Api\Commands\Customers::getLocal($this->userinfo)->listing();
+        $list = json_decode($result, true)['data']['list'];
+        foreach ($list as $domain) {
+            CommandLineInterfaceCmd::println("${domain['id']}: ${domain['domain_ace']}");
+        }
+    }
+
     private function listDomains()
     {
         $result = \Froxlor\Api\Commands\Domains::getLocal($this->userinfo)->listing();
         $list = json_decode($result, true)['data']['list'];
-        foreach($list as $domain) {
+        foreach ($list as $domain) {
             CommandLineInterfaceCmd::println("${domain['id']}: ${domain['domain_ace']}");
+        }
+    }
+
+    private function getAdmin($search_param)
+    {
+        $data = [];
+        if (is_numeric($search_param)) {
+            $data['id'] = $search_param;
+        } else {
+            $data['loginname'] = $search_param;
+        }
+        $result = \Froxlor\Api\Commands\Admins::getLocal($this->userinfo, $data)->get();
+        $decoded = json_decode($result, true)['data'];
+        foreach ($decoded as $key => $value) {
+            CommandLineInterfaceCmd::println("$key:\t$value");
+        }
+    }
+
+    private function getCustomer($search_param)
+    {
+        $data = [];
+        if (is_numeric($search_param)) {
+            $data['id'] = $search_param;
+        } else {
+            $data['loginname'] = $search_param;
+        }
+        $result = \Froxlor\Api\Commands\Customers::getLocal($this->userinfo, $data)->get();
+        $decoded = json_decode($result, true)['data'];
+        foreach ($decoded as $key => $value) {
+            CommandLineInterfaceCmd::println("$key:\t$value");
+        }
+    }
+
+    private function getDomain($search_param)
+    {
+        $data = [];
+        if (is_numeric($search_param)) {
+            $data['id'] = $search_param;
+        } else {
+            $data['domainname'] = $search_param;
+        }
+        $result = \Froxlor\Api\Commands\Domains::getLocal($this->userinfo, $data)->get();
+        $decoded = json_decode($result, true)['data'];
+        foreach ($decoded as $key => $value) {
+            CommandLineInterfaceCmd::println("$key:\t$value");
         }
     }
 

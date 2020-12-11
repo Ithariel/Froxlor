@@ -33,7 +33,12 @@ class CommandLineInterfaceCmd extends CmdLineHandler
      * @var array
      */
     public static $params = array(
+        'list-admins',
+        'list-customers',
         'list-domains',
+        'get-admin',
+        'get-customer',
+        'get-domain',
         'help'
     );
 
