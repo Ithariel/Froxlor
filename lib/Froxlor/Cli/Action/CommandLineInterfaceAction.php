@@ -60,7 +60,11 @@ class CommandLineInterfaceAction extends \Froxlor\Cli\Action
 
     private function listDomains()
     {
-        \Froxlor\Api\Commands\Domains::getLocal($this->userinfo)->listing();
+        $result = \Froxlor\Api\Commands\Domains::getLocal($this->userinfo)->listing();
+        $list = json_decode($result, true)['data']['list'];
+        foreach($list as $domain) {
+            CommandLineInterfaceCmd::println("${domain['id']}: ${domain['domain_ace']}");
+        }
     }
 
     private function parseConfig()
