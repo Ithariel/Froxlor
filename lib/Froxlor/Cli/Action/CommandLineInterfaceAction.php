@@ -145,7 +145,10 @@ class CommandLineInterfaceAction extends \Froxlor\Cli\Action
         $result = \Froxlor\Api\Commands\Domains::getLocal($this->userinfo, $data)->get();
         $decoded = json_decode($result, true)['data'];
         foreach ($decoded as $key => $value) {
-            CommandLineInterfaceCmd::println("$key:\t$value");
+            if(is_array($value)) {
+                $value = "\n" . print_r($value, true);
+            }
+            CommandLineInterfaceCmd::println("$key:\t\t\t$value");
         }
     }
 
